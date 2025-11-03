@@ -8,6 +8,8 @@ using namespace std;
 void displayMenu();
 void savePasswords(const string& site, const string& username, const string& password);
 void loadPasswords();
+void searchPassword();
+string generatePassword(int length = 12);
 
 // Encryption helpers
 string encrypt(const string& text);

@@ -2,8 +2,63 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <random>
+#include <ctime>
+#include <string>
 
 using namespace std;
+
+
+string generatePassword(int length){
+    const string chars =
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "0123456789"
+    "!@#$%^&*()-_=+[]{};:,.<>?";
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dist(0, chars.size() - 1);
+
+    string password;
+    for (int i = 0; i < length; ++i)
+        password += chars[dist(gen)];
+
+    return password;
+}
+
+void searchPassword() {
+    ifstream file ("passwords.txt");
+    if(!file.is_open()){
+        cerr <<"\n[System] No passwords saved yet. \n";
+        return;
+    }
+
+    string siteQuery;
+    cout << "\nEnter site name to search: ";
+    cin >> siteQuery;
+
+
+    string site, username, password;
+    bool found = false;
+
+    while (file >> site >> username >> password){
+        string decSite = decrypt(site);
+        if (decSite == siteQuery){
+            found = true;
+            cout << "\n--------------------------------------------\n";
+            cout << "Site:      " << decSite << "\n";
+            cout << "Username:  " << decrypt(username) << "\n";
+            cout << "Password:  " << decrypt(password) << "\n";
+            cout << "--------------------------------------------\n";
+        }
+    }
+
+    if (!found)
+    cout <<"\n[System] No found password found for that site.\n";
+
+    file.close();
+}
 
 bool setupMasterPassword(){
     ifstream checkFile("master.txt");
@@ -76,7 +131,9 @@ void displayMenu() {
     cout << "\n\n=== Password Manager ===";
     cout << "\n1) Add Password";
     cout << "\n2) View Passwords";
-    cout << "\n3) Exit";
+    cout << "\n3) Search Password by Site";
+    cout << "\n4) Generate Strong Password";
+    cout << "\n5) Exit";
     cout << "\nEnter your choice: ";
 }
 
@@ -85,7 +142,7 @@ void savePasswords(const string& site, const string& username, const string& pas
     if (file.is_open()) {
         file << encrypt(site) << " " << encrypt(username) << " " << encrypt(password) << "\n";
         file.close();
-        cout << "\nPassword saved successfully!";
+        cout << "\n[System] Password for " << site << " saved successfully!";
     } else {
         cerr << "\nError: Unable to open file for writing.";
     }
@@ -95,10 +152,21 @@ void loadPasswords() {
     ifstream file("passwords.txt");
     if (file.is_open()) {
         string site, username, password;
-        cout << "\nSaved Passwords:";
+        cout << "\n=== Saved Passwords ===\n";
+        bool found = false;
+
         while (file >> site >> username >> password) {
-            cout << "\nSite: " << decrypt(site) << " | Username: " << decrypt(username) << " | Password: " << decrypt(password) << "\n";
+            found = true;
+            cout << "--------------------------------------------\n";
+            cout << "Site: " << decrypt(site) << "\n"; 
+            cout << "Username: " << decrypt(username) << "\n";
+            cout << "Password: " << decrypt(password) << "\n";
         }
+        if (!found)
+        cout << "\nNo passwords stored yet.\n";
+
+        cout << "--------------------------------------------\n";
+
         file.close();
     } else {
         cerr << "\n[System] No passwords saved yet.\n";

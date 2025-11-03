@@ -22,26 +22,67 @@ int main() {
         }
 
         switch (choice) {
-            case 1:
+            case 1: {
                 cout << "\nEnter site name: ";
                 cin >> site;
                 cout << "Enter username: ";
                 cin >> username;
-                cout << "Enter password: ";
+
+                char genChoice;
+                cout << "Do you want to generate a strong password automatically? (y/n): ";
+                cin >> genChoice;
+
+                if (genChoice == 'y' || genChoice == 'Y') {
+                int length;
+                cout << "Enter password length: ";
+                cin >> length;
+
+                if (cin.fail() || length <= 0) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                length = 12;
+                }
+
+                password = generatePassword(length);
+                cout << "\n[Generated Password] " << password << "\n";
+                } else {
+                cout << "Enter password manually: ";
                 cin >> password;
+                }
+
                 savePasswords(site, username, password);
                 break;
+                }
             case 2:
                 loadPasswords();
                 break;
             case 3:
+                searchPassword();
+                break;
+            case 4: {
+                int length;
+                cout << "\nEnter password length: ";
+                cin >> length;
+
+                if (cin.fail() || length <= 0) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid length. Please enter a positive number.\n";
+                break;
+                }
+
+                string generated = generatePassword(length);
+                cout << "Generated Password: " << generated << "\n";
+                break;
+            }
+            case 5:
                 cout << "\nExiting...";
                 break;
             default:
                 cout << "\nInvalid choice. Please try again.";
         }
 
-    } while (choice != 3);
+    } while (choice != 5);
 
     return 0;
 }
